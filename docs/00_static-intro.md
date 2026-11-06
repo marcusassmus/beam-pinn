@@ -78,10 +78,12 @@ $$
 
 ## Skript
   Das Skript ist wie folgt abgelegt: [00_beam-pinn-static-intro.py](../code/00_beam-pinn-static-intro.py)
+  
+  Ergebnisdarstellungen sind wie folgt abgelegt: [results/00/](../results/00/)
 
 ## Schnellstart
 ### Google Colab
-* Das Skript kann ohne lokale Installation direkt in [Google Colab](https://colab.research.google.com/) ausführen.
+* Das Skript kann ohne lokale Installation direkt in [Google Colab](https://colab.research.google.com/) ausgeführt werden.
 ### Lokal
 * Um das Skript auf deinem eigenen Rechner auszuführen, wird eine Python-Umgebung (empfohlen: Python $\ge$ 3.8) benötigt. 
 
