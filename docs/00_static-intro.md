@@ -77,7 +77,7 @@ $$
 * **Auswertung & Verifikation:** An 100 äquidistanten Testpunkten werden die Durchbiegung und alle vier Ableitungen berechnet. Die Ergebnisse werden mit den geschlossenen analytischen Verläufen des Kragträgers abgeglichen und inklusive ihrer absoluten Fehlerprofile in einer direkten Gegenüberstellung visualisiert.
 
 ## Skript
-  Das Skript ist wie folgt abgelegt: 
+  Das Skript ist wie folgt abgelegt: [00_beam-pinn-static-intro.py](code/00_beam-pinn-static-intro.py)
 
 ## Schnellstart
 ### Google Colab
