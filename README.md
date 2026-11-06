@@ -3,4 +3,6 @@
 
 Marcus Aßmus
 
-[Intro](docs/00_static-intro.md)
+[Intro Statik](docs/00_static-intro.md)
+
+[Intro Dynamik](docs/00_dynamic-intro.md)
