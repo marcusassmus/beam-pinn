@@ -95,5 +95,5 @@ $$
 2. **Skript ausführen:**
   Das Skript klonen oder in eigene Umgebung kopieren und die Berechnung starten:
    ```bash
-   python beam_pinn.py
+   python 00_beam-pinn-static-intro.py
    ```
