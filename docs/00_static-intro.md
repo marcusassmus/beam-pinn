@@ -30,6 +30,8 @@ $$
 EI \frac{d^4 w(x)}{dx^4} = q(x)
 $$
 
+**Koordinatensystem und Vorzeichen:** $x$ läuft entlang der Balkenachse von der Einspannung ($x=0$) zum freien Ende ($x=L$); $w$ und $q$ sind in dieselbe Richtung positiv (hier: nach unten). Positiv ist das Biegemoment bei Zug an der unteren Faser. Dann gilt $M = -EI\,w''$, $Q = M' = -EI\,w'''$ und $Q' = -q$. Bei umgekehrter Definition kehren sich die Vorzeichen um.
+
 Mit den Randbedingungen für einen Kragbalken (feste Einspannung bei $x=0$, freies Ende bei $x=L$):
 * **Feste Einspannung ($x = 0$):** Durchbiegung $w(0) = 0$, Neigung $\frac{dw}{dx}(0) = 0$
 * **Freies Ende ($x = L$):** Biegemoment $M(L) = -EI\,w''(L) = 0$ und Querkraft $Q(L) = -EI\,w'''(L) = 0$, bei konstantem $EI$ also $w''(L) = 0$ und $w'''(L) = 0$
