@@ -13,9 +13,11 @@ Dieses Projekt demonstriert, wie neuronale Netze **höhere automatische Differen
 * **Validierung höherer Autograd-Ableitungen:** Nutzt PyTorchs `torch.autograd.grad` rekursiv, um Folgendes zu berechnen:
   -  $0$. Ordnung: Durchbiegung $w(x)$
   -  $1$. Ordnung: Neigung / Verdrehung $\frac{dw}{dx}=\alpha(x)$
-  -  $2$. Ordnung: Krümmung / Biegemoment $\frac{d^2w}{dx^2} =M(x)$
-  -  $3$. Ordnung: Querkraft $\frac{d^3w}{dx^3} =Q(x)$
+  -  $2$. Ordnung: Krümmung $\frac{d^2w}{dx^2}=\kappa(x)$, daraus das Biegemoment $M(x) = -EI\,\frac{d^2w}{dx^2}$
+  -  $3$. Ordnung: $\frac{d^3w}{dx^3}$, daraus die Querkraft $Q(x) = -EI\,\frac{d^3w}{dx^3}$
   -  $4$. Ordnung: Lastgleichgewicht $\frac{d^4w}{dx^4} = \frac{q(x)}{EI}$
+
+  (Vorzeichenkonvention: $M' = Q$, $Q' = -q$. Im Skript gilt $EI = 1$; die Plots zeigen daher $w''$ und $w'''$, also $-M$ und $-Q$.)
 * **Multi-Plot-Analyse:** Generiert eine strukturierte **Auswertungsmatrix**, die die PINN-Vorhersagen den exakten analytischen Lösungen gegenüberstellt, ergänzt durch individuelle Fehlerprofile und den Konvergenzverlauf des Trainings-Loss.
 
 
@@ -30,7 +32,7 @@ $$
 
 Mit den Randbedingungen für einen Kragbalken (feste Einspannung bei $x=0$, freies Ende bei $x=L$):
 * **Feste Einspannung ($x = 0$):** Durchbiegung $w(0) = 0$, Neigung $\frac{dw}{dx}(0) = 0$
-* **Freies Ende ($x = L$):** Biegemoment $\frac{d^2w}{dx^2}(L) = 0$, Querkraft $\frac{d^3w}{dx^3}(L) = 0$
+* **Freies Ende ($x = L$):** Biegemoment $M(L) = -EI\,w''(L) = 0$ und Querkraft $Q(L) = -EI\,w'''(L) = 0$, bei konstantem $EI$ also $w''(L) = 0$ und $w'''(L) = 0$
 
 
 
@@ -58,7 +60,7 @@ $$
 
 ## Ablauf
 
-Das physikalisch-informierte Training läuft in der aktuellsten Version über eine optimierte, dreistufige Pipeline ab:
+Das physikalisch-informierte Training läuft in der aktuellsten Version über eine optimierte Pipeline aus vier Bausteinen ab:
 
 * **Netzwerk & Hard Constraints:** Ein mehrschichtiges Perzeptron (MLP) mit einer Architektur von 1–40–40–1 Neuronen und glatten `tanh`-Aktivierungsfunktionen approximiert eine Hilfsfunktion $\mathcal{N}(x)$. Um die kinematischen Randbedingungen an der festen Einspannung ($x=0$) mathematisch exakt zu garantieren, wird der Netzwerkausgang direkt im Forward-Pass transformiert:
   
@@ -68,11 +70,11 @@ $$
   
   Dadurch sind $w(0) = 0$ und $w'(0) = 0$ zu jedem Zeitpunkt des Trainings exakt erfüllt, was die Verlustfunktion vereinfacht und konkurrierende Strafterme eliminiert.
 
-* **Robuste Autograd-Ableitungen:** Die Hilfsfunktion `get_derivatives` berechnet die Ableitungen stufenweise über PyTorchs automatische Differenzierung. Durch die mathematisch korrekte Reduktion der Dimensionen mittels `.sum()` vor jeder weiteren Differenzierungsstufe wird eine fehlerhafte Gradienten-Akkumulation in den höheren Ordnungen (2. bis 4. Ableitung) wirksam unterbunden.
+* **Robuste Autograd-Ableitungen:** Die Hilfsfunktion `get_derivatives` berechnet die Ableitungen stufenweise über PyTorchs automatische Differenzierung. `torch.autograd.grad` verlangt einen skalaren Ausgang, deshalb wird vor jeder Differenzierungsstufe mit `.sum()` summiert (gleichwertig: `grad_outputs=torch.ones_like(...)`). Das liefert die punktweisen Ableitungen, weil das Netz jeden Punkt $x_i$ unabhängig von den anderen auswertet: Die Jacobi-Matrix $\partial w_i/\partial x_j$ ist diagonal, also gilt $\partial \sum_i w_i / \partial x_j = \partial w_j/\partial x_j$. Das setzt voraus, dass keine Kopplung zwischen den Batch-Punkten besteht (z. B. keine Batch-Normalisierung). Mit `create_graph=True` bleibt der Graph für die nächste Stufe und für die Rückwärtsableitung des Loss erhalten.
 
 * **Zweistufiges Hybrid-Training:** Das Optimierungsverfahren ist in zwei Phasen unterteilt, um globale Stabilität mit lokaler Glattheit zu kombinieren:
   - **Phase 1 (Adam-Exploration):** 4000 Epochen mit dem Adam-Optimierer ($lr = 0.002$). In jeder Epoche werden $N_f = 150$ interne Kollokationspunkte stochastisch neu gewürfelt. Dies zwingt das Netz zur physikalischen Generalisierung und minimiert das PDE-Residuum sowie die weichen Strafterme (Soft Constraints) am freien Balkenende ($x=L$, Gewichtungsfaktor: 150).
-  - **Phase 2 (L-BFGS-Glättung):** 25 zusätzliche Schritte mit dem Newton-Verfahren zweiter Ordnung (L-BFGS via `closure()`). L-BFGS nutzt die Krümmungsinformationen der Verlustlandschaft, um verbleibendes hochfrequentes Rauschen in den Gewichten zu eliminieren und den Loss auf $< 10^{-6}$ zu senken.
+  - **Phase 2 (L-BFGS-Glättung):** 25 zusätzliche Schritte mit dem Quasi-Newton-Verfahren L-BFGS (via `closure()`, je Schritt bis zu `max_iter=30` Iterationen) auf einem festen Satz von $N_f = 150$ äquidistanten Kollokationspunkten. L-BFGS nähert die inverse Hesse-Matrix aus den zurückliegenden Gradienten an (Historie: 100) und kann das Minimum auf den festen Punkten deutlich genauer ansteuern als Adam mit wechselnden Punkten. Ziel ist, den Loss auf $< 10^{-6}$ zu senken.
 
 * **Auswertung & Verifikation:** An 100 äquidistanten Testpunkten werden die Durchbiegung und alle vier Ableitungen berechnet. Die Ergebnisse werden mit den geschlossenen analytischen Verläufen des Kragträgers abgeglichen und inklusive ihrer absoluten Fehlerprofile in einer direkten Gegenüberstellung visualisiert.
 
@@ -95,5 +97,6 @@ $$
 2. **Skript ausführen:**
   Das Skript klonen oder in eigene Umgebung kopieren und die Berechnung starten:
    ```bash
+   cd code
    python 00_beam-pinn-static-intro.py
    ```
