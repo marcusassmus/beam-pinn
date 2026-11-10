@@ -13,8 +13,8 @@ Dieses Projekt demonstriert, wie neuronale Netze **höhere automatische Differen
 * **Validierung höherer Autograd-Ableitungen:** Nutzt PyTorchs `torch.autograd.grad` rekursiv, um Folgendes zu berechnen:
   -  $0$. Ordnung: Durchbiegung $w(x)$
   -  $1$. Ordnung: Neigung / Verdrehung $\frac{dw}{dx}=\alpha(x)$
-  -  $2$. Ordnung: Krümmung $\frac{d^2w}{dx^2}=\kappa(x)$, daraus das Biegemoment $M(x) = -EI\,\frac{d^2w}{dx^2}$
-  -  $3$. Ordnung: $\frac{d^3w}{dx^3}$, daraus die Querkraft $Q(x) = -EI\,\frac{d^3w}{dx^3}$
+  -  $2$. Ordnung: Krümmung $\frac{d^2w}{dx^2}=\kappa(x)$, daraus das Biegemoment $M(x) = -EI\cdot \frac{d^2w}{dx^2}$
+  -  $3$. Ordnung: $\frac{d^3w}{dx^3}$, daraus die Querkraft $Q(x) = -EI\cdot \frac{d^3w}{dx^3}$
   -  $4$. Ordnung: Lastgleichgewicht $\frac{d^4w}{dx^4} = \frac{q(x)}{EI}$
 
   (Vorzeichenkonvention: $M' = Q$, $Q' = -q$. Im Skript gilt $EI = 1$; die Plots zeigen daher $w''$ und $w'''$, also $-M$ und $-Q$.)
@@ -30,11 +30,11 @@ $$
 EI \frac{d^4 w(x)}{dx^4} = q(x)
 $$
 
-**Koordinatensystem und Vorzeichen:** $x$ läuft entlang der Balkenachse von der Einspannung ($x=0$) zum freien Ende ($x=L$); $w$ und $q$ sind in dieselbe Richtung positiv (hier: nach unten). Positiv ist das Biegemoment bei Zug an der unteren Faser. Dann gilt $M = -EI\,w''$, $Q = M' = -EI\,w'''$ und $Q' = -q$. Bei umgekehrter Definition kehren sich die Vorzeichen um.
+**Koordinatensystem und Vorzeichen:** $x$ läuft entlang der Balkenachse von der Einspannung ($x=0$) zum freien Ende ($x=L$); $w$ und $q$ sind in dieselbe Richtung positiv (hier: nach unten). Positiv ist das Biegemoment bei Zug an der unteren Faser. Dann gilt $M = -EI\cdot w''$, $Q = M' = -EI\cdot w'''$ und $Q' = -q$. Bei umgekehrter Definition kehren sich die Vorzeichen um.
 
 Mit den Randbedingungen für einen Kragbalken (feste Einspannung bei $x=0$, freies Ende bei $x=L$):
 * **Feste Einspannung ($x = 0$):** Durchbiegung $w(0) = 0$, Neigung $\frac{dw}{dx}(0) = 0$
-* **Freies Ende ($x = L$):** Biegemoment $M(L) = -EI\,w''(L) = 0$ und Querkraft $Q(L) = -EI\,w'''(L) = 0$, bei konstantem $EI$ also $w''(L) = 0$ und $w'''(L) = 0$
+* **Freies Ende ($x = L$):** Biegemoment $M(L) = -EI\cdot w''(L) = 0$ und Querkraft $Q(L) = -EI\cdot w'''(L) = 0$, bei konstantem $EI$ also $w''(L) = 0$ und $w'''(L) = 0$
 
 
 
