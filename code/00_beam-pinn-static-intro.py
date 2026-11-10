@@ -23,7 +23,7 @@ L = 1.0       # Balkenlänge [m]
 EI = 1.0      # Biegesteifigkeit [Nm^2]
 q = 1.0       # Streckenlast [N/m]
 
-# --- 1. Pure PINN Definition mit stabilisierter Aktivierung (Sinus) ---
+# --- 1. Pure PINN Definition mit glatter Aktivierung (tanh) ---
 class PureBeamPINN(nn.Module):
     def __init__(self):
         super().__init__()
@@ -106,6 +106,9 @@ for i in range(25):
     loss_history.append(loss.item())
     print(f"L-BFGS Step {i}, Loss: {loss.item():.6f}")
 
+# step() liefert den Loss vom Schrittanfang; der tatsächliche Endwert wird separat ausgewertet
+print(f"Finaler Loss nach dem letzten L-BFGS-Schritt: {closure().item():.3e}")
+
 # --- 4. Auswertung  ---
 x_test = torch.linspace(0, L, 100).view(-1, 1).requires_grad_(True)
 w_t, dw_t, d2w_t, d3w_t, d4w_t = get_derivatives(model, x_test)
@@ -144,7 +147,7 @@ fig, axs = plt.subplots(5, 2, figsize=(14, 18))
 
 def plot_comparison(ax, x, y_ex, y_pinn, title):
     ax.plot(x, y_ex, 'k--', label="Analytisch", linewidth=2, zorder=3)
-    ax.plot(x, y_pinn, 'r-', label="Pure PINN (4th Order)", linewidth=2, zorder=2)
+    ax.plot(x, y_pinn, 'r-', label="PINN", linewidth=2, zorder=2)
     ax.set_title(title)
     ax.legend()
     ax.grid(True)
@@ -157,11 +160,11 @@ plot_comparison(axs[1, 0], x_np, dw_ex, dw_pinn, "1. Ableitung: Neigung dw/dx")
 axs[1, 1].plot(x_np, np.abs(dw_pinn - dw_ex), 'b-')
 axs[1, 1].grid(True)
 
-plot_comparison(axs[2, 0], x_np, d2w_ex, d2w_pinn, "2. Ableitung: Krümmung d²w/dx²")
+plot_comparison(axs[2, 0], x_np, d2w_ex, d2w_pinn, "2. Ableitung: Krümmung d²w/dx² (= −M/EI)")
 axs[2, 1].plot(x_np, np.abs(d2w_pinn - d2w_ex), 'b-')
 axs[2, 1].grid(True)
 
-plot_comparison(axs[3, 0], x_np, d3w_ex, d3w_pinn, "3. Ableitung: Querkraft d³w/dx³")
+plot_comparison(axs[3, 0], x_np, d3w_ex, d3w_pinn, "3. Ableitung: d³w/dx³ (= −Q/EI)")
 axs[3, 1].plot(x_np, np.abs(d3w_pinn - d3w_ex), 'b-')
 axs[3, 1].grid(True)
 
