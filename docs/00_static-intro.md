@@ -84,7 +84,7 @@ $$
 
 ## Ergebnisse (Größenordnung)
 
-Aus `results/00/res.png` abgelesen (ungefähre Werte, vom Skript nicht ausgegeben; sie schwanken je nach Lauf und PyTorch-Version). Maximaler absoluter Fehler über $x \in [0, L]$ und Fehler bezogen auf den Maximalwert der exakten Lösung:
+Aus `results/00/res.png` abgelesen (ungefähre Werte). Maximaler absoluter Fehler über $x \in [0, L]$ und Fehler bezogen auf den Maximalwert der exakten Lösung:
 
 | Ableitung | Größe | max. abs. Fehler | relativ zum Maximalwert |
 |---|---|---|---|
@@ -105,7 +105,7 @@ Die Genauigkeit nimmt mit der Ableitungsordnung ab, der größte Sprung liegt zw
 ### Google Colab
 * Das Skript kann ohne lokale Installation direkt in [Google Colab](https://colab.research.google.com/) ausgeführt werden.
 ### Lokal
-* Um das Skript auf dem eigenen Rechner auszuführen, wird eine Python-Umgebung (PyTorch 2.15 verlangt laut PyPI Python $\ge$ 3.11; bei älterem Python eine ältere PyTorch-Version wählen) benötigt. 
+* Um das Skript auf dem eigenen Rechner auszuführen, wird eine Python-Umgebung (Python $\ge$ 3.11) benötigt. 
 
 1. **Abhängigkeiten installieren:**
    Installiere die erforderlichen mathematischen und Deep-Learning-Bibliotheken über das Terminal/die Eingabeaufforderung:
